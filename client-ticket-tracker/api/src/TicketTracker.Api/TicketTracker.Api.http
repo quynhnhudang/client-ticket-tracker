@@ -1,0 +1,123 @@
+### Client Ticket Tracker: API requests
+# Works with the VS Code "REST Client" extension, Rider, and Visual Studio 2022+.
+# REST Client keeps the auth cookie between requests automatically, so run
+# "Login" first, then anything else. (docs/LOCAL-SETUP.md has curl versions.)
+
+@api = http://localhost:5080/api
+@email = agent@example.com
+@password = change-this-password
+# Sample data creates tickets 1-10, so the first ticket you create is usually 11.
+# If "Create a ticket" returns a different id, change this.
+@ticketId = 11
+
+### Health (no login needed)
+GET {{api}}/health
+
+### Login: sets the ctt.auth cookie
+POST {{api}}/auth/login
+Content-Type: application/json
+
+{ "email": "{{email}}", "password": "{{password}}" }
+
+### Who am I?
+GET {{api}}/auth/me
+
+### Queue: all tickets, most urgent first
+GET {{api}}/tickets
+
+### Queue: open tickets only
+GET {{api}}/tickets?status=Open
+
+### Queue: escalated + urgent
+GET {{api}}/tickets?status=Escalated&priority=Urgent
+
+### Ticket detail
+GET {{api}}/tickets/1
+
+### Create a ticket
+POST {{api}}/tickets
+Content-Type: application/json
+
+{
+  "title": "CSV import rejects dates in DD/MM/YYYY",
+  "description": "Client's import file uses UK date format and every row fails validation.",
+  "category": "Bug",
+  "priority": "Medium",
+  "clientName": "Harbor Freight Lines",
+  "clientEmail": "support@harborfreight.example"
+}
+
+### Invalid: 400 with one error per field (title/description too short, priority missing, bad email)
+POST {{api}}/tickets
+Content-Type: application/json
+
+{ "title": "Hi", "description": "Short.", "category": "Bug", "clientName": "X", "clientEmail": "nope" }
+
+### Invalid enum value: 400 from the JSON reader itself ("Feature" isn't a TicketCategory)
+# The body can't be deserialised at all, so this one reports only the JSON error.
+POST {{api}}/tickets
+Content-Type: application/json
+
+{ "title": "Valid title", "description": "A long enough description.", "category": "Feature", "priority": "Low", "clientName": "Test Co", "clientEmail": "t@test.example" }
+
+### Start work on the new ticket (Open -> InProgress)
+POST {{api}}/tickets/{{ticketId}}/status
+Content-Type: application/json
+
+{ "newStatus": "InProgress" }
+
+### Escalate WITHOUT a note -> 400
+POST {{api}}/tickets/{{ticketId}}/status
+Content-Type: application/json
+
+{ "newStatus": "Escalated" }
+
+### Escalate with a note -> 200, and a warning line in the API console
+POST {{api}}/tickets/{{ticketId}}/status
+Content-Type: application/json
+
+{ "newStatus": "Escalated", "note": "Reproduced on staging; SSO callback returns 504 after 30s." }
+
+### Resolve
+POST {{api}}/tickets/{{ticketId}}/status
+Content-Type: application/json
+
+{ "newStatus": "Resolved", "resolutionNotes": "Engineering raised the SSO callback timeout; verified with client." }
+
+### Illegal transition: Resolved -> Escalated -> 400
+POST {{api}}/tickets/{{ticketId}}/status
+Content-Type: application/json
+
+{ "newStatus": "Escalated", "note": "should fail" }
+
+### Add an internal comment
+POST {{api}}/tickets/{{ticketId}}/comments
+Content-Type: application/json
+
+{ "body": "Client confirmed the fix on their side." }
+
+### Search by ID
+GET {{api}}/tickets/search?q=%232
+
+### Search by client-name prefix (matches both Acme clients)
+GET {{api}}/tickets/search?q=acme
+
+### Search by keywords in different fields (title has "login", description has "timeout")
+GET {{api}}/tickets/search?q=login%20timeout
+
+### Wildcard escaping: searching for a literal "%" (URL-encoded as %25).
+# Unescaped, LIKE '%%' would match EVERY client name and return all tickets.
+# Escaped, it only finds the ticket whose title contains a "%" character.
+GET {{api}}/tickets/search?q=%25
+
+### Logout
+POST {{api}}/auth/logout
+
+### Triage: is the optional LLM suggestion feature configured?
+GET {{api}}/triage/status
+
+### Triage: suggest a category and priority (404 if Triage:ApiKey isn't set)
+POST {{api}}/triage/suggest
+Content-Type: application/json
+
+{ "title": "Password reset email never arrives", "description": "Members say reset emails never arrive. Checked spam. Everyone affected since this morning." }

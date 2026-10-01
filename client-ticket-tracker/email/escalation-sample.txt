@@ -1,0 +1,19 @@
+ESCALATED TO ENGINEERING: ticket #6
+Password reset email never arrives
+
+Priority:     Urgent
+Client:       Brightwater Credit Union <support@brightwater.example>
+Category:     Bug
+Escalated by: Sam Agent
+Escalated at: Sep 25, 2026 18:46 UTC
+Opened:       Sep 25, 2026 09:05 UTC
+
+Why it was escalated:
+Reproduced with a test account: no email is sent and there is no error in the UI.
+Looks like the mail queue is stuck. Needs someone with access to the mail service.
+
+Client's description:
+Members report that password reset emails are not delivered. They have checked spam folders.
+Affects all members since this morning.
+
+View the ticket: http://localhost:4200/tickets/6

@@ -1,0 +1,84 @@
+<p><a routerLink="/tickets">← Back to queue</a></p>
+<h1>New ticket</h1>
+
+<form class="card form-grid" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <fieldset>
+    <legend>Client</legend>
+    <label for="clientName">Client name</label>
+    <input id="clientName" formControlName="clientName" autocomplete="off" />
+    @if (showError('clientName'); as e) { <p class="field-error">{{ e }}</p> }
+
+    <label for="clientEmail">Client email</label>
+    <input id="clientEmail" type="email" formControlName="clientEmail" autocomplete="off" />
+    <p class="hint">Existing clients are matched by email.</p>
+    @if (showError('clientEmail'); as e) { <p class="field-error">{{ e }}</p> }
+  </fieldset>
+
+  <fieldset>
+    <legend>Issue</legend>
+    <label for="title">Title</label>
+    <input id="title" formControlName="title" maxlength="200" />
+    @if (showError('title'); as e) { <p class="field-error">{{ e }}</p> }
+
+    <label for="description">Description</label>
+    <textarea id="description" formControlName="description" rows="6" maxlength="4000"></textarea>
+    @if (showError('description'); as e) { <p class="field-error">{{ e }}</p> }
+  </fieldset>
+
+  <fieldset>
+    <legend>Triage</legend>
+
+    @if (triageEnabled()) {
+      <div class="suggest-row">
+        <button type="button" (click)="suggest()" [disabled]="!canSuggest()">
+          {{ suggesting() ? 'Asking…' : 'Suggest category & priority' }}
+        </button>
+        <span class="hint">Uses an LLM on the title and description. You can change anything it suggests.</span>
+      </div>
+      @if (suggestion(); as s) {
+        <p class="suggestion-reason"><strong>Why:</strong> {{ s.reason }}</p>
+      }
+      @if (suggestionError()) {
+        <p class="field-error">{{ suggestionError() }}</p>
+      }
+    }
+
+    <div class="two-col">
+      <div>
+        <label for="category">
+          Category
+          @if (suggestedFields().category) { <span class="tag-suggested">suggested</span> }
+        </label>
+        <select id="category" formControlName="category">
+          <option value="" disabled>Choose…</option>
+          @for (c of categories; track c) {
+            <option [value]="c">{{ categoryLabels[c] }}</option>
+          }
+        </select>
+        @if (showError('category'); as e) { <p class="field-error">{{ e }}</p> }
+      </div>
+      <div>
+        <label for="priority">
+          Priority
+          @if (suggestedFields().priority) { <span class="tag-suggested">suggested</span> }
+        </label>
+        <select id="priority" formControlName="priority">
+          <option value="" disabled>Choose…</option>
+          @for (p of priorities; track p) {
+            <option [value]="p">{{ priorityLabels[p] }}</option>
+          }
+        </select>
+        @if (showError('priority'); as e) { <p class="field-error">{{ e }}</p> }
+      </div>
+    </div>
+  </fieldset>
+
+  @if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  }
+
+  <div class="actions">
+    <button type="submit" class="primary" [disabled]="saving()">{{ saving() ? 'Creating…' : 'Create ticket' }}</button>
+    <a class="button" routerLink="/tickets">Cancel</a>
+  </div>
+</form>

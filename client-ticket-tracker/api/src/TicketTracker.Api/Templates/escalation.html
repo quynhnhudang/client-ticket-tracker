@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="x-apple-disable-message-reformatting">
+<meta name="format-detection" content="telephone=no, date=no, address=no, email=no">
+<title>Ticket #{{TicketId}} escalated</title>
+<!-- NOTE: No <style> block anywhere. Gmail (in some views), many webmail clients
+     and corporate filters strip <style>, so every rule is an inline style="..."
+     attribute. The one exception below is Outlook-only XML, not CSS. -->
+<!--[if mso]>
+<xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml>
+<![endif]-->
+<!-- NOTE: The block above stops Outlook for Windows (which renders email with
+     Microsoft Word's engine) from scaling images and widths on high-DPI screens. -->
+</head>
+<body style="margin:0; padding:0; background-color:#f0f2f5; -webkit-text-size-adjust:100%; -ms-text-size-adjust:100%;">
+
+<!-- NOTE: Preheader: the grey preview line inboxes show after the subject.
+     Hidden with several properties because no single one works everywhere
+     (mso-hide:all is Outlook's own property). -->
+<div style="display:none; font-size:1px; line-height:1px; max-height:0; max-width:0; opacity:0; overflow:hidden; mso-hide:all;">{{Preheader}}</div>
+
+<!-- NOTE: LAYOUT = NESTED TABLES, not flexbox or grid.
+     Outlook for Windows supports neither flexbox nor grid, and ignores most
+     positioning, floats and margins. Tables with explicit width attributes are
+     the one layout tool every client renders the same way.
+     role="presentation" tells screen readers these are layout tables, not data. -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f0f2f5" style="background-color:#f0f2f5;">
+  <tr>
+    <td align="center" style="padding:24px 12px;">
+
+      <!-- NOTE: Centred 600px column. max-width makes it shrink on phones without
+           a media query (media queries would need a <style> block). Outlook for
+           Windows ignores max-width, so this "ghost table", visible only to
+           Outlook, pins the width to 600px there. -->
+      <!--[if mso]>
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" align="center"><tr><td>
+      <![endif]-->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%; max-width:600px; background-color:#ffffff; border:1px solid #d9dee6;" bgcolor="#ffffff">
+
+        <!-- Header bar.
+             NOTE: colours are set twice: the bgcolor attribute (old HTML, which
+             Outlook honours reliably) and background-color (everyone else).
+             Always 6-digit hex; no rgba(), CSS variables or gradients, which
+             Outlook for Windows doesn't support. -->
+        <tr>
+          <td bgcolor="#16213a" style="background-color:#16213a; padding:16px 24px; font-family:Arial, Helvetica, sans-serif; font-size:15px; font-weight:bold; color:#ffffff;">
+            Client Ticket Tracker
+          </td>
+        </tr>
+
+        <!-- Escalation banner -->
+        <tr>
+          <td bgcolor="#a11d14" style="background-color:#a11d14; padding:10px 24px; font-family:Arial, Helvetica, sans-serif; font-size:13px; font-weight:bold; letter-spacing:1px; color:#ffffff; text-transform:uppercase;">
+            Escalated to engineering
+          </td>
+        </tr>
+
+        <!-- Title -->
+        <tr>
+          <td style="padding:24px 24px 8px 24px; font-family:Arial, Helvetica, sans-serif;">
+            <!-- NOTE: Headings get explicit margin:0 and sizes, because default
+                 heading margins differ between clients. -->
+            <h1 style="margin:0; font-family:Arial, Helvetica, sans-serif; font-size:22px; line-height:28px; font-weight:bold; color:#1c2430;">
+              <span style="color:#5d6b7e;">#{{TicketId}}</span> {{Title}}
+            </h1>
+          </td>
+        </tr>
+
+        <!-- Summary: label/value rows in a real two-column table.
+             NOTE: this is where a web page would use CSS grid or a flex row;
+             in email it's a table with fixed column widths. -->
+        <tr>
+          <td style="padding:8px 24px 16px 24px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:20px; color:#1c2430;">
+              <tr>
+                <td width="130" valign="top" style="width:130px; padding:6px 0; color:#5d6b7e;">Priority</td>
+                <td valign="top" style="padding:6px 0;">
+                  <!-- NOTE: a "badge" as an inline-block span with padding. Rounded corners
+                       show in most clients; Outlook for Windows shows square ones,
+                       which is an acceptable degradation. -->
+                  <span style="display:inline-block; padding:2px 10px; border-radius:10px; background-color:{{PriorityColor}}; color:#ffffff; font-size:12px; font-weight:bold;">{{Priority}}</span>
+                </td>
+              </tr>
+              <tr>
+                <td width="130" valign="top" style="width:130px; padding:6px 0; color:#5d6b7e; border-top:1px solid #eef0f3;">Client</td>
+                <td valign="top" style="padding:6px 0; border-top:1px solid #eef0f3;">{{ClientName}} &lt;{{ClientEmail}}&gt;</td>
+              </tr>
+              <tr>
+                <td width="130" valign="top" style="width:130px; padding:6px 0; color:#5d6b7e; border-top:1px solid #eef0f3;">Category</td>
+                <td valign="top" style="padding:6px 0; border-top:1px solid #eef0f3;">{{Category}}</td>
+              </tr>
+              <tr>
+                <td width="130" valign="top" style="width:130px; padding:6px 0; color:#5d6b7e; border-top:1px solid #eef0f3;">Escalated by</td>
+                <td valign="top" style="padding:6px 0; border-top:1px solid #eef0f3;">{{EscalatedBy}}</td>
+              </tr>
+              <tr>
+                <td width="130" valign="top" style="width:130px; padding:6px 0; color:#5d6b7e; border-top:1px solid #eef0f3;">Escalated at</td>
+                <td valign="top" style="padding:6px 0; border-top:1px solid #eef0f3;">{{EscalatedAt}}</td>
+              </tr>
+              <tr>
+                <td width="130" valign="top" style="width:130px; padding:6px 0; color:#5d6b7e; border-top:1px solid #eef0f3;">Opened</td>
+                <td valign="top" style="padding:6px 0; border-top:1px solid #eef0f3;">{{CreatedAt}}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- Why it was escalated.
+             NOTE: the coloured left border is a border on a table cell (which Outlook
+             supports), rather than a ::before pseudo-element or box-shadow (which it doesn't). -->
+        <tr>
+          <td style="padding:0 24px 16px 24px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td bgcolor="#fdf1f0" style="background-color:#fdf1f0; border-left:4px solid #a11d14; padding:12px 16px; font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:21px; color:#1c2430;">
+                  <strong style="display:block; margin-bottom:4px;">Why it was escalated</strong>
+                  {{EscalationNote}}
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- Original description -->
+        <tr>
+          <td style="padding:0 24px 8px 24px; font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:21px; color:#1c2430;">
+            <strong style="display:block; margin-bottom:4px;">Client's description</strong>
+            {{Description}}
+          </td>
+        </tr>
+
+        <!-- Call to action: a "bulletproof" button.
+             NOTE: Outlook for Windows ignores padding on <a>, so a normal padded link
+             would shrink to just its text. Outlook gets a VML <v:roundrect> (a
+             Word drawing shape) inside a conditional comment; every other client
+             gets the ordinary padded link. -->
+        <tr>
+          <td align="left" style="padding:16px 24px 28px 24px;">
+            <!--[if mso]>
+            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{TicketUrl}}" style="height:44px; v-text-anchor:middle; width:220px;" arcsize="14%" stroke="f" fillcolor="#2456c8">
+              <w:anchorlock/>
+              <center style="color:#ffffff; font-family:Arial, Helvetica, sans-serif; font-size:15px; font-weight:bold;">View ticket #{{TicketId}}</center>
+            </v:roundrect>
+            <![endif]-->
+            <!--[if !mso]><!-->
+            <a href="{{TicketUrl}}" target="_blank" style="display:inline-block; background-color:#2456c8; color:#ffffff; font-family:Arial, Helvetica, sans-serif; font-size:15px; font-weight:bold; line-height:44px; padding:0 24px; border-radius:6px; text-decoration:none;">View ticket #{{TicketId}}</a>
+            <!--<![endif]-->
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td bgcolor="#fafbfc" style="background-color:#fafbfc; border-top:1px solid #d9dee6; padding:16px 24px; font-family:Arial, Helvetica, sans-serif; font-size:12px; line-height:18px; color:#5d6b7e;">
+            You're receiving this because you're on the engineering escalation list.<br>
+            Link not working? Copy this address: <span style="color:#2456c8;">{{TicketUrl}}</span>
+          </td>
+        </tr>
+
+      </table>
+      <!--[if mso]>
+      </td></tr></table>
+      <![endif]-->
+
+    </td>
+  </tr>
+</table>
+</body>
+</html>

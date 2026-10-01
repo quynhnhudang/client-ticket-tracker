@@ -1,0 +1,148 @@
+<p><a routerLink="/tickets">← Back to queue</a></p>
+
+@if (loadError()) {
+  <p class="error" role="alert">{{ loadError() }}</p>
+}
+
+@if (ticket(); as t) {
+  <div class="page-header">
+    <h1><span class="muted">#{{ t.id }}</span> {{ t.title }}</h1>
+  </div>
+
+  <div class="badges">
+    <app-badge kind="status" [value]="t.status" />
+    <app-badge kind="priority" [value]="t.priority" />
+    <app-badge kind="category" [value]="t.category" />
+  </div>
+
+  <div class="detail-grid">
+    <!-- Left column: the ticket itself, resolution, comments -->
+    <div>
+      <section class="card">
+        <h2>Description</h2>
+        <!-- Interpolation {{ }} HTML-escapes the text, so a description containing
+             <script> is shown as text, never run. white-space: pre-wrap keeps line breaks. -->
+        <p class="prewrap">{{ t.description }}</p>
+      </section>
+
+      @if (t.resolutionNotes) {
+        <section class="card resolution">
+          <h2>Resolution notes</h2>
+          <p class="prewrap">{{ t.resolutionNotes }}</p>
+          @if (t.resolvedAt) {
+            <p class="muted small">Resolved {{ t.resolvedAt | date: 'medium' }}</p>
+          }
+        </section>
+      }
+
+      <section class="card">
+        <h2>Internal comments <span class="muted">({{ t.comments.length }})</span></h2>
+        @for (c of t.comments; track c.id) {
+          <article class="comment">
+            <header>
+              <strong>{{ c.authorName }}</strong>
+              <span class="muted small">{{ c.createdAt | date: 'medium' }}</span>
+            </header>
+            <p class="prewrap">{{ c.body }}</p>
+          </article>
+        } @empty {
+          <p class="muted">No comments yet.</p>
+        }
+
+        <form class="stack" (ngSubmit)="addComment()">
+          <label for="comment">Add a comment (visible to agents only)</label>
+          <textarea id="comment" name="comment" rows="3" maxlength="4000" [(ngModel)]="commentBody"></textarea>
+          @if (commentError()) {
+            <p class="error">{{ commentError() }}</p>
+          }
+          <div>
+            <button type="submit" [disabled]="!commentBody.trim() || postingComment()">Add comment</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <!-- Right column: actions, client, history -->
+    <aside>
+      <section class="card">
+        <h2>Actions</h2>
+        @if (!pendingStatus()) {
+          <div class="actions">
+            <!-- Buttons come from allowedNextStatuses, computed by the server's
+                 TicketStatusRules, so the UI can never offer an illegal move. -->
+            @for (s of t.allowedNextStatuses; track s) {
+              <button type="button" [class.danger]="s === 'Escalated'" (click)="startStatusChange(s)">
+                {{ statusActions[s] }}
+              </button>
+            }
+          </div>
+        } @else {
+          <form class="stack" (ngSubmit)="submitStatusChange()">
+            <p>
+              Move to <strong>{{ statusLabels[pendingStatus()!] }}</strong>
+              @if (pendingStatus() === 'Escalated') {
+                <br /><span class="muted small">Engineering will be emailed with this note.</span>
+              }
+            </p>
+
+            @if (resolutionRequired()) {
+              <label for="resolutionNotes">Resolution notes (required)</label>
+              <textarea id="resolutionNotes" name="resolutionNotes" rows="4" maxlength="4000"
+                        [(ngModel)]="resolutionNotes"></textarea>
+            }
+
+            <label for="note">{{ noteRequired() ? 'Escalation note (required)' : 'Note (optional)' }}</label>
+            <textarea id="note" name="note" rows="3" maxlength="1000" [(ngModel)]="note"></textarea>
+
+            @if (actionError()) {
+              <p class="error" role="alert">{{ actionError() }}</p>
+            }
+            @if (conflict()) {
+              <button type="button" (click)="reload()">Reload ticket</button>
+            }
+
+            <div class="actions">
+              <button type="submit" class="primary" [disabled]="!canSubmitStatus()">
+                {{ saving() ? 'Saving…' : 'Confirm' }}
+              </button>
+              <button type="button" (click)="cancelStatusChange()">Cancel</button>
+            </div>
+          </form>
+        }
+      </section>
+
+      <section class="card">
+        <h2>Client</h2>
+        <p><strong>{{ t.client.name }}</strong><br /><a [href]="'mailto:' + t.client.email">{{ t.client.email }}</a></p>
+        <p class="muted small">
+          Logged by {{ t.createdBy }}<br />
+          Created {{ t.createdAt | date: 'medium' }}<br />
+          Updated {{ t.updatedAt | date: 'medium' }}
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>Status history</h2>
+        <ol class="timeline">
+          @for (h of t.history; track h.id) {
+            <li>
+              <div>
+                @if (h.fromStatus) {
+                  {{ statusLabels[h.fromStatus] }} → <strong>{{ statusLabels[h.toStatus] }}</strong>
+                } @else {
+                  <strong>{{ statusLabels[h.toStatus] }}</strong>
+                }
+              </div>
+              <div class="muted small">{{ h.changedBy }} · {{ h.changedAt | date: 'MMM d, h:mm a' }}</div>
+              @if (h.note) {
+                <div class="small prewrap">{{ h.note }}</div>
+              }
+            </li>
+          }
+        </ol>
+      </section>
+    </aside>
+  </div>
+} @else if (!loadError()) {
+  <p class="muted">Loading…</p>
+}

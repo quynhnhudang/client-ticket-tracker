@@ -1,0 +1,73 @@
+<div class="page-header">
+  <h1>Ticket queue</h1>
+  <a class="button primary" routerLink="/tickets/new">New ticket</a>
+</div>
+
+<div class="filters">
+  <label>
+    Status
+    <select (change)="setFilter('status', $any($event.target).value)">
+      <option value="" [selected]="!statusFilter()">All statuses</option>
+      @for (s of statuses; track s) {
+        <option [value]="s" [selected]="s === statusFilter()">{{ statusLabels[s] }}</option>
+      }
+    </select>
+  </label>
+  <label>
+    Priority
+    <select (change)="setFilter('priority', $any($event.target).value)">
+      <option value="" [selected]="!priorityFilter()">All priorities</option>
+      @for (p of priorities; track p) {
+        <option [value]="p" [selected]="p === priorityFilter()">{{ priorityLabels[p] }}</option>
+      }
+    </select>
+  </label>
+  @if (result(); as r) {
+    <span class="muted">{{ r.totalCount }} ticket{{ r.totalCount === 1 ? '' : 's' }}</span>
+  }
+</div>
+
+@if (error()) {
+  <p class="error" role="alert">{{ error() }}</p>
+}
+
+<div class="table-wrap" [class.loading]="loading()">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Title</th>
+        <th>Client</th>
+        <th>Priority</th>
+        <th>Status</th>
+        <th>Category</th>
+        <th>Created</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (t of result()?.items ?? []; track t.id) {
+        <tr>
+          <td class="num">{{ t.id }}</td>
+          <td><a [routerLink]="['/tickets', t.id]">{{ t.title }}</a></td>
+          <td>{{ t.clientName }}</td>
+          <td><app-badge kind="priority" [value]="t.priority" /></td>
+          <td><app-badge kind="status" [value]="t.status" /></td>
+          <td><app-badge kind="category" [value]="t.category" /></td>
+          <td class="nowrap">{{ t.createdAt | date: 'MMM d, h:mm a' }}</td>
+        </tr>
+      } @empty {
+        @if (!loading()) {
+          <tr><td colspan="7" class="empty">No tickets match these filters.</td></tr>
+        }
+      }
+    </tbody>
+  </table>
+</div>
+
+@if (totalPages() > 1) {
+  <nav class="pager" aria-label="Pages">
+    <button type="button" [disabled]="pageNumber() <= 1" (click)="goToPage(pageNumber() - 1)">Previous</button>
+    <span>Page {{ pageNumber() }} of {{ totalPages() }}</span>
+    <button type="button" [disabled]="pageNumber() >= totalPages()" (click)="goToPage(pageNumber() + 1)">Next</button>
+  </nav>
+}

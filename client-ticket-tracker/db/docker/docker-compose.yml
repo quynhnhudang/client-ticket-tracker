@@ -1,0 +1,21 @@
+# Local SQL Server with Full-Text Search.
+#   cp .env.example .env      (then edit the password)
+#   docker compose up -d --build
+#   docker compose logs -f    (wait for "SQL Server is now ready for client connections")
+services:
+  sqlserver:
+    build: .
+    platform: linux/amd64   # SQL Server is x86-64 only; emulated on Apple Silicon
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer" # free, full-featured, licensed for development only
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD:?Set MSSQL_SA_PASSWORD in db/docker/.env}"
+    ports:
+      - "1433:1433"
+    volumes:
+      # Named volume: the database survives `docker compose down` / rebuilds.
+      # `docker compose down -v` deletes it.
+      - mssql-data:/var/opt/mssql
+
+volumes:
+  mssql-data:

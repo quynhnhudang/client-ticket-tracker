@@ -1,0 +1,44 @@
+# /etc/systemd/system/tickettracker.service
+#
+# systemd keeps Kestrel running: starts it at boot, restarts it if it crashes,
+# and collects its console output into the journal (journalctl -u tickettracker).
+
+[Unit]
+Description=Client Ticket Tracker API (ASP.NET Core / Kestrel)
+# Start after the network and SQL Server are up (it still retries if SQL is slow).
+After=network-online.target mssql-server.service
+Wants=network-online.target
+
+[Service]
+Type=exec
+User=tickettracker
+Group=tickettracker
+# "current" is the symlink deploy.sh switches; the service always runs the newest release.
+WorkingDirectory=/var/www/tickettracker/current/api
+ExecStart=/usr/bin/dotnet /var/www/tickettracker/current/api/TicketTracker.Api.dll
+
+# Kestrel listens on loopback only: unreachable from outside, even if a firewall rule is wrong.
+Environment=ASPNETCORE_URLS=http://127.0.0.1:5080
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=DOTNET_NOLOGO=1
+Environment=DOTNET_CLI_TELEMETRY_OPTOUT=1
+# Secrets (connection string, SMTP password, ...) live in a root-owned file, not here.
+EnvironmentFile=/etc/tickettracker/app.env
+
+Restart=always
+RestartSec=5
+# ASP.NET Core shuts down gracefully on SIGINT/SIGTERM: in-flight requests finish.
+KillSignal=SIGINT
+TimeoutStopSec=30
+SyslogIdentifier=tickettracker
+
+# Hardening: the service can't gain privileges, sees a read-only OS, and can
+# write only to its Data Protection key directory.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/tickettracker
+
+[Install]
+WantedBy=multi-user.target

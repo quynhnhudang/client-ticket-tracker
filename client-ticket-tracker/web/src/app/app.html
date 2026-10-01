@@ -1,0 +1,27 @@
+@if (auth.agent(); as agent) {
+  <header class="topbar">
+    <a class="brand" routerLink="/tickets">Client Ticket Tracker</a>
+    <nav>
+      <a routerLink="/tickets" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Queue</a>
+      <a routerLink="/tickets/new" routerLinkActive="active">New ticket</a>
+    </nav>
+    <form class="topbar-search" role="search" (ngSubmit)="search()">
+      <input
+        type="search"
+        name="q"
+        [(ngModel)]="searchText"
+        placeholder="Search: #id, client or keywords"
+        aria-label="Search tickets"
+        maxlength="200"
+      />
+    </form>
+    <div class="topbar-user">
+      <span>{{ agent.displayName }}</span>
+      <button type="button" class="link-button" (click)="logout()">Sign out</button>
+    </div>
+  </header>
+}
+
+<main class="page">
+  <router-outlet />
+</main>
